@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="JI6ND_9xtAWJ5EG4Fag-STfROlu4zrC5y9NKcuuJbW8" />
+    <title>Могилів-Подільський графік руху автобусів</title>
+    <meta name="description" content="Розклад руху автобусів у Могилів-Подільському. Дізнатися  час відправлення автобусів по зупинкам міста.">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VHY6R74G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-70VHY6R74G');
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #FFD700, #0057B7);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0057B7;
+            color: #FFD700;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            background-color: #FFD700;
+            padding: 10px 0;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+        nav ul li a {
+            color: #0057B7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #0057B7;
+        }
+        label {
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        select, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 2px solid #0057B7;
+            border-radius: 5px;
+        }
+        select:focus, button:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+        .result-item {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+        h3 {
+            color: #0057B7;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #0057B7;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #FFD700;
+        }
+        @media only screen and (max-width: 600px) {
+            nav ul li {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+        .hidden {
+            display: none;
+        }
+        .statistics {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Могилів-Подільський графік руху автобусів</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#" data-page="home">Головна</a></li>
+            <li><a href="#" data-page="about">Про нас</a></li>
+            <li><a href="#" data-page="telegram">Телеграм бот</a></li>
+            <li><a href="#" data-page="viber">Вайбер бот</a></li>
+            <li><a href="#" data-page="api">API</a></li>
+            <li><a href="#" data-page="contacts">Контакти</a></li>
+        </ul>
+    </nav>
+    <div class="container" id="content">
+        <p>Сервіс пошуку розкладу руху автобусів в нашому місті.</p>
+
+        <h2>Пошук</h2>
+        <select id="busStopName">
+            <option value="">-- Виберіть зупинку --</option>
+        </select>
+
+        <h2>Результат пошуку</h2>
+        <div id="result">Для відображення інформації, будь ласка оберіть зупинку із списку вище.</div>
+
+        <button id="prevButton">Попередній автобус</button>
+        <button id="findButton">Оновити відносно поточного часу</button>
+        <button id="nextButton">Наступний автобус</button>
+        <button id="scheduleButton">Повний розклад</button>
+
+        <div class="statistics">
+            <h2>Статистика</h2>
+            <p>Кількість відвідувачів: <span id="totalVisitors">{{ total_visitors }}</span></p>
+            <p>Кількість запитів: <span id="totalRequests">{{ total_requests }}</span></p>
+            <p>Остання активність: <span id="lastActivity">{{ last_activity }}</span></p>
+        </div>
+    </div>
+    <script>
+        let offset = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const busStopName = document.getElementById('busStopName');
+            const result = document.getElementById('result');
+            const prevButton = document.getElementById('prevButton');
+            const findButton = document.getElementById('findButton');
+            const nextButton = document.getElementById('nextButton');
+            const scheduleButton = document.getElementById('scheduleButton');
+            const content = document.getElementById('content');
+            const totalVisitors = document.getElementById('totalVisitors');
+            const totalRequests = document.getElementById('totalRequests');
+            const lastActivity = document.getElementById('lastActivity');
+
+            async function updateStatistics() {
+                try {
+                    const response = await fetch('/statistics');
+                    const data = await response.json();
+                    totalVisitors.textContent = data.total_visitors;
+                    totalRequests.textContent = data.total_requests;
+                    lastActivity.textContent = data.last_activity;
+                } catch (error) {
+                    console.error('Помилка оновлення статистики:', error);
+                }
+            }
+
+            async function updateLastActivity() {
+                try {
+                    await fetch('/update_last_activity', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    updateStatistics();
+                } catch (error) {
+                    console.error('Помилка оновлення останньої активності:', error);
+                }
+            }
+
+            async function loadBusStops() {
+                try {
+                    const response = await fetch('/bus_stops');
+                    const data = await response.json();
+                    if (data) {
+                        data.forEach(stop => {
+                            const option = document.createElement('option');
+                            option.value = stop;
+                            option.textContent = stop;
+                            busStopName.appendChild(option);
+                        });
+                    } else {
+                        result.textContent = "Не вдалося завантажити список зупинок.";
+                    }
+                } catch (error) {
+                    result.textContent = `Помилка завантаження списку зупинок: ${error}`;
+                }
+            }
+
+            async function fetchSchedule() {
+                const busStop = busStopName.value.trim();
+                if (!busStop) {
+                    result.innerHTML = "Для відображення інформації, будь ласка оберіть зупинку із списку";
+                    return;
+                }
+                try {
+                    const response = await fetch(`/schedule?bus_stop_name=${busStop}&offset=${offset}`);
+                    const data = await response.json();
+                    if (data) {
+                        result.innerHTML = `
+                            <div class="result-item"><strong>Назва зупинки:</strong> ${data.bus_stop}</div>
+                            <div class="result-item"><strong>В напрямку:</strong> ${data.direction}</div>
+                            <div class="result-item"><strong>Номер автобуса: №</strong> ${data.bus_number}</div>
+                            <div class="result-item"><strong>Час прибуття:</strong> ${data.arrival_time}</div>
+                            <div class="result-item"><strong>Через:</strong> ${data.time_left}</div>
+                        `;
+                    } else {
+                        result.textContent = "Не знайдено інформації про наступний автобус.";
+                    }
+                    updateStatistics();
+                } catch (error) {
+                    result.textContent = `Помилка: ${error}`;
+                }
+            }
+
+            async function fetchFullSchedule() {
+                result.textContent = '';
+                const busStop = busStopName.value.trim();
+                if (!busStop) {
+                    result.innerHTML = "Для відображення інформації, будь ласка оберіть зупинку із списку";
+                    return;
+                }
+                try {
+                    const response = await fetch(`/full_schedule?bus_stop_name=${busStop}&offset=${offset}`);
+                    const data = await response.json();
+                    if (data.full_schedule) {
+                        const fullSchedule = data.full_schedule.map(entry => `
+                            <tr>
+                                <td>${entry[0]}</td>
+                                <td>${entry[1]}</td>
+                                <td>${entry[2]}</td>
+                            </tr>
+                        `).join('');
+                        result.innerHTML = `
+                            <h3>Повний графік руху по зупинці: ${data.bus_stop}</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>В напрямку</th>
+                                        <th>Номер автобуса</th>
+                                        <th>Час прибуття</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${fullSchedule}
+                                </tbody>
+                            </table>
+                        `;
+                    } else {
+                        result.textContent = "Не знайдено інформації про наступний автобус.";
+                    }
+                    updateStatistics();
+                } catch (error) {
+                    result.textContent = `Помилка: ${error}`;
+                }
+            }
+
+            async function loadPage(page) {
+                try {
+                    const response = await fetch(`/${page}`);
+                    const data = await response.text();
+                    content.innerHTML = data;
+                } catch (error) {
+                    content.innerHTML = `<p>Помилка завантаження сторінки: ${error}</p>`;
+                }
+            }
+
+            document.querySelectorAll('nav ul li a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    if (page === 'home') {
+                        location.reload();
+                    } else {
+                        loadPage(page);
+                    }
+                });
+            });
+
+            busStopName.addEventListener('change', () => {
+                updateLastActivity();
+                fetchSchedule();
+            });
+            findButton.addEventListener('click', () => {
+                updateLastActivity();
+                fetchSchedule();
+            });
+            prevButton.addEventListener('click', () => {
+                updateLastActivity();
+                offset -= 1;
+                fetchSchedule();
+            });
+            nextButton.addEventListener('click', () => {
+                updateLastActivity();
+                offset += 1;
+                fetchSchedule();
+            });
+            scheduleButton.addEventListener('click', () => {
+                updateLastActivity();
+                fetchFullSchedule();
+            });
+            loadBusStops();
+        });
+    </script>
+</body>
+</html>
