@@ -1,3 +1,4 @@
 __pycache__
 user_data.pickle
+poetry.lock
 .env
