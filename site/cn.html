@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книга рецептів</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #alert-box {
+            padding: 15px;
+            background-color: #f44336;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background-color: #4CAF50;
+        }
+
+        .alert-error {
+            background-color: #f44336;
+        }
+
+        #recipe-details {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #recipe-details h3 {
+            margin-top: 0;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        #recipe-modal, #section-modal, #link-modal, #copy-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: none;
+        }
+
+        #recipe-modal h2, #section-modal h2, #link-modal h2, #copy-modal h2 {
+            margin-top: 0;
+        }
+
+        .modal-btn {
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        const apiBaseUrl = 'http://mog-pod.pp.ua';
+
+        function loadSections() {
+            $.ajax({
+                url: `${apiBaseUrl}/sections/`,
+                type: 'GET',
+                success: function(data) {
+                    $("#sections").empty();
+                    $("#sections").append(new Option('', ''));
+                    data.forEach(section => {
+                        $("#sections").append(new Option(section.name, section.name));
+                    });
+                    loadRecipes();
+                    loadStatistics();
+                },
+                error: function(xhr, status, error) {
+                    console.error(`Failed to load sections: ${error}`);
+                }
+            });
+        }
+
+        function loadRecipes() {
+            const section = $("#sections").val();
+            $.ajax({
+                url: `${apiBaseUrl}/recipes/`,
+                type: 'GET',
+                data: { section: section },
+                success: function(data) {
+                    $("#recipes").empty();
+                    $("#recipes").append(new Option('', ''));
+                    data.forEach(recipe => {
+                        $("#recipes").append(new Option(recipe.name, recipe.id));
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(`Failed to fetch recipes: ${error}`);
+                }
+            });
+        }
+
+        function loadRecipeDetails(recipeId) {
+            if (!recipeId) {
+                $("#recipe-details").hide();
+                return;
+            }
+            $.ajax({
+                url: `${apiBaseUrl}/recipes/${recipeId}`,
+                type: 'GET',
+                success: function(data) {
+                    $("#recipe-name-view").text(data.name);
+                    $("#recipe-description-view").text(data.description);
+                    $("#recipe-ingredients-view").html(data.ingredients.split('\n').map(ingredient => `<li>${ingredient}</li>`).join(''));
+                    $("#recipe-steps-view").text(data.steps);
+                    $("#recipe-details").show();
+                },
+                error: function(xhr, status, error) {
+                    console.error(`Failed to fetch recipe details: ${error}`);
+                }
+            });
+        }
+
+        function loadStatistics() {
+            $.ajax({
+                url: `${apiBaseUrl}/statistics/`,
+                type: 'GET',
+                success: function(data) {
+                    $("#statistics").html(`
+                        <h3>Статистика</h3>
+                        <p>Кількість розділів: ${data.num_sections}</p>
+                        <p>Кількість рецептів: ${data.num_recipes}</p>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    console.error(`Failed to load statistics: ${error}`);
+                }
+            });
+        }
+
+        function createRecipeLink(recipeId) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('recipe', recipeId);
+            return url.toString();
+        }
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = text;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+        }
+
+        function copyRecipeDetails(recipeId) {
+            if (!recipeId) return;
+
+            $.ajax({
+                url: `${apiBaseUrl}/recipes/${recipeId}`,
+                type: 'GET',
+                success: function(data) {
+                    const recipeText = `Назва: ${data.name}\n\nОпис: ${data.description}\n\nІнгредієнти:\n${data.ingredients}\n\nКроки приготування:\n${data.steps}`;
+                    copyToClipboard(recipeText);
+                },
+                error: function(xhr, status, error) {
+                    console.error(`Failed to fetch recipe details: ${error}`);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            loadSections();
+
+            $("#sections").change(function() {
+                loadRecipes();
+            });
+
+            $("#recipes").change(function() {
+                const recipeId = $(this).val();
+                loadRecipeDetails(recipeId);
+            });
+
+            $("#add-section-btn").click(function() {
+                $("#section-name").val('');
+                $("#modal-title-section").text("Створити розділ");
+                $("#section-modal").show();
+            });
+
+            $("#edit-section-btn").click(function() {
+                const sectionName = $("#sections").val();
+                if (sectionName) {
+                    $("#section-name").val(sectionName);
+                    $("#modal-title-section").text("Перейменувати розділ");
+                    $("#section-modal").show();
+                } else {
+                    showAlert("Будь ласка, виберіть розділ для редагування", true);
+                }
+            });
+
+            $("#delete-section-btn").click(function() {
+                const sectionName = $("#sections").val();
+                if (sectionName) {
+                    if (confirm(`Ви впевнені, що хочете видалити розділ "${sectionName}"?`)) {
+                        $.ajax({
+                            url: `${apiBaseUrl}/sections/${encodeURIComponent(sectionName)}`,
+                            type: 'DELETE',
+                            success: function(data) {
+                                showAlert("Розділ видалено");
+                                loadSections();
+                                loadStatistics();  // Оновлення статистики після видалення розділу
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(`Failed to delete section: ${error}`);
+                                showAlert("Не вдалося видалити розділ", true);
+                            }
+                        });
+                    }
+                } else {
+                    showAlert("Будь ласка, виберіть розділ для видалення", true);
+                }
+            });
+
+            $("#save-section-modal").click(function() {
+                const name = $("#section-name").val().trim();
+                if (name) {
+                    const sectionData = JSON.stringify({ name: name });
+                    if ($("#modal-title-section").text() === "Створити розділ") {
+                        $.ajax({
+                            url: `${apiBaseUrl}/sections/`,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: sectionData,
+                            success: function(data) {
+                                showAlert("Розділ створено");
+                                loadSections();
+                                loadStatistics();  // Оновлення статистики після створення розділу
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(`Failed to create section: ${error}`);
+                                showAlert("Не вдалося створити розділ", true);
+                            }
+                        });
+                    } else if ($("#modal-title-section").text() === "Перейменувати розділ") {
+                        const sectionName = $("#sections").val();
+                        $.ajax({
+                            url: `${apiBaseUrl}/sections/${encodeURIComponent(sectionName)}`,
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            data: sectionData,
+                            success: function(data) {
+                                showAlert("Розділ перейменовано");
+                                loadSections();
+                                loadStatistics();  // Оновлення статистики після перейменування розділу
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(`Failed to rename section: ${error}`);
+                                showAlert("Не вдалося перейменувати розділ", true);
+                            }
+                        });
+                    }
+                } else {
+                    showAlert("Будь ласка, заповніть назву розділу", true);
+                }
+                $("#section-modal").hide();
+            });
+
+            $("#add-recipe-btn").click(function() {
+                $("#recipe-name").val('');
+                $("#recipe-description").val('');
+                $("#recipe-ingredients").val('');
+                $("#recipe-steps").val('');
+                $("#recipe-modal-title").text("Додати рецепт");
+                $("#recipe-modal").show();
+            });
+
+            $("#edit-recipe-btn").click(function() {
+                const recipeId = $("#recipes").val();
+                if (recipeId) {
+                    $.ajax({
+                        url: `${apiBaseUrl}/recipes/${recipeId}`,
+                        type: 'GET',
+                        success: function(data) {
+                            $("#recipe-name").val(data.name);
+                            $("#recipe-description").val(data.description);
+                            $("#recipe-ingredients").val(data.ingredients);
+                            $("#recipe-steps").val(data.steps);
+                            $("#recipe-modal-title").text("Редагувати рецепт");
+                            $("#recipe-modal").show();
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(`Failed to fetch recipe details: ${error}`);
+                        }
+                    });
+                } else {
+                    showAlert("Будь ласка, виберіть рецепт для редагування", true);
+                }
+            });
+
+            $("#delete-recipe-btn").click(function() {
+                const recipeId = $("#recipes").val();
+                if (recipeId) {
+                    if (confirm(`Ви впевнені, що хочете видалити рецепт?`)) {
+                        $.ajax({
+                            url: `${apiBaseUrl}/recipes/${recipeId}`,
+                            type: 'DELETE',
+                            success: function(data) {
+                                showAlert("Рецепт видалено");
+                                loadRecipes();
+                                loadRecipeDetails(null);
+                                loadStatistics();  // Оновлення статистики після видалення рецепту
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(`Failed to delete recipe: ${error}`);
+                                showAlert("Не вдалося видалити рецепт", true);
+                            }
+                        });
+                    }
+                } else {
+                    showAlert("Будь ласка, виберіть рецепт для видалення", true);
+                }
+            });
+
+            $("#save-recipe-modal").click(function() {
+                const name = $("#recipe-name").val().trim();
+                const description = $("#recipe-description").val().trim();
+                const ingredients = $("#recipe-ingredients").val().trim();
+                const steps = $("#recipe-steps").val().trim();
+                const section = $("#sections").val();
+
+                if (name && description && ingredients && steps && section) {
+                    const recipeData = JSON.stringify({
+                        name: name,
+                        description: description,
+                        ingredients: ingredients,
+                        steps: steps,
+                        section: section
+                    });
+
+                    if ($("#recipe-modal-title").text() === "Додати рецепт") {
+                        $.ajax({
+                            url: `${apiBaseUrl}/recipes/`,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: recipeData,
+                            success: function(data) {
+                                showAlert("Рецепт додано");
+                                loadRecipes();
+                                loadStatistics();  // Оновлення статистики після додавання рецепту
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(`Failed to add recipe: ${error}`);
+                                showAlert("Не вдалося додати рецепт", true);
+                            }
+                        });
+                    } else if ($("#recipe-modal-title").text() === "Редагувати рецепт") {
+                        const recipeId = $("#recipes").val();
+                        $.ajax({
+                            url: `${apiBaseUrl}/recipes/${recipeId}`,
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            data: recipeData,
+                            success: function(data) {
+                                showAlert("Рецепт оновлено");
+                                loadRecipes();
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(`Failed to update recipe: ${error}`);
+                                showAlert("Не вдалося оновити рецепт", true);
+                            }
+                        });
+                    }
+                } else {
+                    showAlert("Будь ласка, заповніть всі поля", true);
+                }
+                $("#recipe-modal").hide();
+            });
+
+            $("#create-link-btn").click(function() {
+                const recipeId = $("#recipes").val();
+                if (recipeId) {
+                    $("#link-modal").show();
+                } else {
+                    showAlert("Будь ласка, виберіть рецепт для створення посилання", true);
+                }
+            });
+
+            $("#copy-recipe-btn").click(function() {
+                const recipeId = $("#recipes").val();
+                if (recipeId) {
+                    $("#copy-modal").show();
+                } else {
+                    showAlert("Будь ласка, виберіть рецепт для копіювання", true);
+                }
+            });
+
+            $("#link-ok-btn").click(function() {
+                const recipeId = $("#recipes").val();
+                const link = createRecipeLink(recipeId);
+                copyToClipboard(link);
+                showAlert("Посилання скопійовано до буферу обміну");
+                $("#link-modal").hide();
+            });
+
+            $("#copy-ok-btn").click(function() {
+                const recipeId = $("#recipes").val();
+                copyRecipeDetails(recipeId);
+                showAlert("Рецепт скопійовано до буферу обміну");
+                $("#copy-modal").hide();
+            });
+
+            // Перевірка URL параметрів при завантаженні сторінки
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipeId = urlParams.get('recipe');
+            if (recipeId) {
+                loadRecipeDetails(recipeId);
+                $("#recipes").val(recipeId);
+            }
+
+            $("#cancel-recipe-modal, #cancel-section-modal, #cancel-link-modal, #cancel-copy-modal").click(function() {
+                $("#recipe-modal, #section-modal, #link-modal, #copy-modal").hide();
+            });
+        });
+
+        function showAlert(message, isError = false) {
+            const alertBox = $("#alert-box");
+            alertBox.text(message);
+            alertBox.removeClass("alert-success alert-error");
+            alertBox.addClass(isError ? "alert-error" : "alert-success");
+            alertBox.show();
+            setTimeout(() => {
+                alertBox.hide();
+            }, 3000);
+        }
+    </script>
+</head>
+<body>
+    <h1>Книга рецептів</h1>
+    <div>
+        <label for="sections">Розділи:</label>
+        <select id="sections" name="sections"></select>
+        <button id="add-section-btn">Додати розділ</button>
+        <button id="edit-section-btn">Редагувати розділ</button>
+        <button id="delete-section-btn">Видалити розділ</button>
+    </div>
+    <div>
+        <label for="recipes">Рецепти:</label>
+        <select id="recipes" name="recipes"></select>
+        <button id="add-recipe-btn">Додати рецепт</button>
+        <button id="edit-recipe-btn">Редагувати рецепт</button>
+        <button id="delete-recipe-btn">Видалити рецепт</button>
+        <button id="create-link-btn">Створити посилання</button>
+        <button id="copy-recipe-btn">Копіювати рецепт</button>
+    </div>
+    <div id="recipe-details" style="display: none;">
+        <h3 id="recipe-name-view"></h3>
+        <p id="recipe-description-view"></p>
+        <h4>Інгредієнти</h4>
+        <ul id="recipe-ingredients-view"></ul>
+        <h4>Кроки приготування</h4>
+        <p id="recipe-steps-view"></p>
+    </div>
+    <div id="alert-box" style="display: none;"></div>
+    <div id="statistics"></div>
+
+    <div id="recipe-modal">
+        <h2 id="recipe-modal-title"></h2>
+        <label for="recipe-name">Назва:</label>
+        <input type="text" id="recipe-name" name="recipe-name">
+        <label for="recipe-description">Опис:</label>
+        <textarea id="recipe-description" name="recipe-description"></textarea>
+        <label for="recipe-ingredients">Інгредієнти:</label>
+        <textarea id="recipe-ingredients" name="recipe-ingredients"></textarea>
+        <label for="recipe-steps">Кроки приготування:</label>
+        <textarea id="recipe-steps" name="recipe-steps"></textarea>
+        <button id="save-recipe-modal" class="modal-btn">Зберегти</button>
+        <button id="cancel-recipe-modal" class="modal-btn">Скасувати</button>
+    </div>
+
+    <div id="section-modal">
+        <h2 id="modal-title-section"></h2>
+        <label for="section-name">Назва розділу:</label>
+        <input type="text" id="section-name" name="section-name">
+        <button id="save-section-modal" class="modal-btn">Зберегти</button>
+        <button id="cancel-section-modal" class="modal-btn">Скасувати</button>
+    </div>
+
+    <div id="link-modal">
+        <h2>Створити посилання</h2>
+        <p>Посилання буде скопійоване в буфер обміну</p>
+        <button id="link-ok-btn" class="modal-btn">OK</button>
+        <button id="cancel-link-modal" class="modal-btn">Скасувати</button>
+    </div>
+
+    <div id="copy-modal">
+        <h2>Копіювати рецепт</h2>
+        <p>Рецепт буде скопійований в буфер обміну</p>
+        <button id="copy-ok-btn" class="modal-btn">OK</button>
+        <button id="cancel-copy-modal" class="modal-btn">Скасувати</button>
+    </div>
+</body>
+</html>

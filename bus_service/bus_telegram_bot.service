@@ -7,8 +7,8 @@ After=network.target
 Type=simple
 User=ubuntu
 WorkingDirectory=/home/ubuntu/bus-service/bus_service
-Environment="PATH=/home/ubuntu/bus-service/.venv/bin:$PATH"
-ExecStart=/home/ubuntu/bus-service/.venv/bin/python3 /home/ubuntu/bus-service/bus_service/bus_telegram_bot.py
+Environment="PATH=/home/ubuntu/bus-service/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/home/ubuntu/bus-service/venv/bin/python3 /home/ubuntu/bus-service/bus_service/bus_telegram_bot.py
 RestartSec=10
 Restart=always
 
