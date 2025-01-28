@@ -28,28 +28,6 @@
             padding: 20px;
             text-align: center;
         }
-        nav {
-            text-align: center;
-            background-color: #FFD700;
-            padding: 10px 0;
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 15px;
-        }
-        nav ul li a {
-            color: #0057B7;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        nav ul li a:hover {
-            text-decoration: underline;
-        }
         .container {
             max-width: 800px;
             margin: 20px auto;
@@ -117,18 +95,10 @@
     <header>
         <h1>Могилів-Подільський графік руху автобусів</h1>
     </header>
-    <nav>
-        <ul>
-            <li><a href="#" data-page="home">Головна</a></li>
-            <li><a href="#" data-page="about">Про нас</a></li>
-            <li><a href="#" data-page="telegram">Телеграм бот</a></li>
-            <li><a href="#" data-page="viber">Вайбер бот</a></li>
-            <li><a href="#" data-page="api">API</a></li>
-            <li><a href="#" data-page="contacts">Контакти</a></li>
-        </ul>
-    </nav>
     <div class="container" id="content">
         <p>Сервіс пошуку розкладу руху автобусів в нашому місті.</p>
+        <p>Тут ви можете переглянути як час прибуття по кожній із зупинок, так і ознайомитись з повним розкладом по ним.</p>
+
 
         <h2>Пошук</h2>
         <select id="busStopName">
@@ -219,7 +189,12 @@ class Tracking {
                     const direction = nextBusInfo[0];
                     const busNumber = nextBusInfo[1];
                     const arrivalTime = nextBusInfo[2];
-                    const timeLeft = arrivalTime - new Date();
+                    let timeLeft = arrivalTime - currentTime;
+                    if (timeLeft < 0) {
+                        // If the time left is negative, it means the bus has already passed for today
+                        // Add 24 hours to get the time for the next day
+                        timeLeft += 24 * 60 * 60 * 1000;
+                    }
                     const hoursLeft = Math.floor(timeLeft / 3600000);
                     const minutesLeft = Math.floor((timeLeft % 3600000) / 60000);
 
@@ -377,11 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
     busStopName.addEventListener('change', fetchSchedule);
     findButton.addEventListener('click', fetchSchedule);
     prevButton.addEventListener('click', () => {
-        offset -= 1;
+        tracking.offset -= 1;
         fetchSchedule();
     });
     nextButton.addEventListener('click', () => {
-        offset += 1;
+        tracking.offset += 1;
         fetchSchedule();
     });
     scheduleButton.addEventListener('click', fetchFullSchedule);
