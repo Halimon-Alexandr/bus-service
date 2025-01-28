@@ -99,7 +99,6 @@
         <p>Сервіс пошуку розкладу руху автобусів в нашому місті.</p>
         <p>Тут ви можете переглянути як час прибуття по кожній із зупинок, так і ознайомитись з повним розкладом по ним.</p>
 
-
         <h2>Пошук</h2>
         <select id="busStopName">
             <option value="">-- Виберіть зупинку --</option>
@@ -148,6 +147,10 @@ class Tracking {
             const currentTime = busSchedule[index];
             for (const [direction, offset] of Object.entries(this.busArrivalTimes[busStopQuery] || {})) {
                 const departureTime = busSchedule[index];
+                if (!departureTime) {
+                    console.error(`Departure time is undefined for index ${index}`);
+                    continue;
+                }
                 const busNumber = (index % 2) + 1;
                 const departureTimeDT = new Date();
                 departureTimeDT.setHours(parseInt(departureTime.slice(0, 2)), parseInt(departureTime.slice(3)), 0);
