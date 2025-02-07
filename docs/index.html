@@ -211,8 +211,28 @@
         // Дані про зупинки
         const stopData = new Map([
             ["Бронниця", {url: "bronnitsa", desc: "Розклад автобусів для зупинки Бронниця"}],
-            ["Нижній магазин", {url: "nizhnii-magazin", desc: "Розклад для Нижнього магазину"}],
-            // Додайте решту зупинок аналогічним чином
+            ["Нижній магазин", {url: "nizhnii-magazin", desc: "Розклад для зупинки Нижній магазин"}],
+            ["П’ята колона", {url: "pyata-kolona", desc: "Розклад для зупинки П’ята колона"}],
+            ["Військова частина", {url: "viiskova-chastyna", desc: "Розклад для зупинки Військова частина"}],
+            ["Консервний завод", {url: "konservnyi-zavod", desc: "Розклад для зупинки Консервний завод"}],
+            ["119-й район", {url: "119-raion", desc: "Розклад для зупинки 119-й район"}],
+            ["Магазин «Ельф», Прибори", {url: "magazin-elf-prybory", desc: "Розклад для зупинки Магазин «Ельф», Прибори"}],
+            ["Школа № 3, Полкова церква", {url: "shkola-3-polkova-tserkva", desc: "Розклад для зупинки Школа № 3, Полкова церква"}],
+            ["Проспект Незалежності", {url: "prospekt-nezalezhnosti", desc: "Розклад для зупинки Проспект Незалежності"}],
+            ["Площа ім. Гоголя", {url: "ploshcha-im-hoholia", desc: "Розклад для зупинки Площа ім. Гоголя"}],
+            ["Центр, Укрпошта", {url: "tsentr-ukrposhta", desc: "Розклад для зупинки Центр, Укрпошта"}],
+            ["Ринок", {url: "rynok", desc: "Розклад для зупинки Ринок"}],
+            ["Ощадбанк", {url: "oschadbank", desc: "Розклад для зупинки Ощадбанк"}],
+            ["Монтажний технікум", {url: "montazhnyi-tekhnikum", desc: "Розклад для зупинки Монтажний технікум"}],
+            ["Машинобудівний завод", {url: "mashynobudivnyi-zavod", desc: "Розклад для зупинки Машинобудівний завод"}],
+            ["Школа № 5, Нова пошта", {url: "shkola-5-nova-poshta", desc: "Розклад для зупинки Школа № 5, Нова пошта"}],
+            ["Лікарня", {url: "likarnya", desc: "Розклад для зупинки Лікарня"}],
+            ["Верхня Немія", {url: "verkhnya-nemia", desc: "Розклад для зупинки Верхня Немія"}],
+            ["Залізничний вокзал", {url: "zaliznychnyi-vokzal", desc: "Розклад для зупинки Залізничний вокзал"}],
+            ["Маслозавод", {url: "maslozavod", desc: "Розклад для зупинки Маслозавод"}],
+            ["Автовокзал", {url: "avtovokzal", desc: "Розклад для зупинки Автовокзал"}],
+            ["Школа № 2", {url: "shkola-2", desc: "Розклад для зупинки Школа № 2"}],
+            ["Пристань, «Вацак»", {url: "prystan-vatsak", desc: "Розклад для зупинки Пристань, «Вацак»"}]
         ]);
 
         // Оригінальний клас Tracking
@@ -232,7 +252,7 @@
                     return this.holidaysSchedule;
                 }
                 const weekday = today.getDay();
-                const isWorkday = weekday < 5;
+                const isWorkday = weekday >= 1 && weekday <= 5;
                 return isWorkday ? this.workdaySchedule : this.weekendSchedule;
             }
 
@@ -358,6 +378,8 @@
                 }
             };
 
+            let recentStopTimer = null;
+
             // Ініціалізація зупинок
             function initBusStops() {
                 stopData.forEach((value, key) => {
@@ -426,8 +448,13 @@
                 updateMetaTags(selectedStop);
                 updateScheduleDisplay();
 
-                // Додаємо зупинку до списку останніх через 5 секунд
-                setTimeout(() => {
+                // Скидаємо таймер, якщо він вже встановлений
+                if (recentStopTimer) {
+                    clearTimeout(recentStopTimer);
+                }
+
+                // Встановлюємо новий таймер на 5 секунд
+                recentStopTimer = setTimeout(() => {
                     addToRecentStops(selectedStop);
                 }, 5000);
             }
