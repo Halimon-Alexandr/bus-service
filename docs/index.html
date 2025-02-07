@@ -4,90 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="JI6ND_9xtAWJ5EG4Fag-STfROlu4zrC5y9NKcuuJbW8" />
-    <title>Могилів-Подільський графік руху автобусів</title>
-    <meta name="description" content="Розклад руху автобусів у Могилів-Подільському. Дізнатися  час відправлення автобусів по зупинкам міста.">
+
+    <!-- Dynamic Meta Tags -->
+    <title id="dynamicTitle">Могилів-Подільський графік руху автобусів</title>
+    <meta name="description" id="metaDescription" content="Розклад руху автобусів у Могилів-Подільському. Дізнатися час відправлення автобусів по зупинкам міста.">
+
+    <!-- Open Graph Tags -->
+    <meta property="og:title" id="ogTitle" content="Могилів-Подільський графік руху автобусів">
+    <meta property="og:description" id="ogDescription" content="Актуальний розклад руху автобусів по зупинкам Могилева-Подільського">
+    <meta property="og:type" content="website">
+    <meta property="og:url" id="ogUrl" content="https://yourdomain.com/">
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VHY6R74G"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-70VHY6R74G');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-70VHY6R74G');
     </script>
+
     <style>
+        :root {
+            --primary-color: #0057B7;
+            --secondary-color: #FFD700;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(to bottom, var(--secondary-color), var(--primary-color));
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #FFD700, #0057B7);
-            color: #333;
+            background: var(--bg-gradient);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
+            min-height: 100vh;
         }
+
         header {
-            background-color: #0057B7;
-            color: #FFD700;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
             padding: 20px;
             text-align: center;
         }
+
         .container {
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
-            text-align: center;
-            color: #0057B7;
-        }
-        label {
-            display: block;
+
+        .recent-stops {
             margin-top: 20px;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        select, button {
-            display: block;
-            width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
-            font-size: 16px;
-            border: 2px solid #0057B7;
+            background: rgba(255, 255, 255, 0.7);
             border-radius: 5px;
         }
-        select:focus, button:focus {
-            outline: none;
-            border-color: #FFD700;
-        }
-        .result-item {
-            margin: 5px 0;
-            font-size: 18px;
-        }
-        h3 {
-            color: #0057B7;
+
+        .recent-stops h3 {
             margin-bottom: 10px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+
+        .recent-stops ul {
+            list-style-type: none;
+            padding: 0;
         }
-        th, td {
-            border: 1px solid #0057B7;
-            padding: 10px;
-            text-align: left;
+
+        .recent-stops ul li {
+            margin: 5px 0;
         }
-        th {
-            background-color: #FFD700;
+
+        .recent-stops ul li a {
+            text-decoration: none;
+            color: var(--primary-color);
         }
-        @media only screen and (max-width: 600px) {
-            nav ul li {
-                display: block;
-                margin: 10px 0;
-            }
-        }
-        .hidden {
-            display: none;
+
+        .recent-stops ul li a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -107,96 +103,188 @@
         <h2>Результат пошуку</h2>
         <div id="result">Для відображення інформації, будь ласка оберіть зупинку із списку вище.</div>
 
-        <button id="prevButton">Попередній автобус</button>
-        <button id="findButton">Оновити відносно поточного часу</button>
-        <button id="nextButton">Наступний автобус</button>
-        <button id="scheduleButton">Повний розклад</button>
+        <div class="button-group">
+            <button id="prevButton">Попередній автобус</button>
+            <button id="findButton">Оновити</button>
+            <button id="nextButton">Наступний</button>
+            <button id="scheduleButton">Повний розклад</button>
+        </div>
+
+        <div class="recent-stops">
+            <h3>Останні переглянуті зупинки</h3>
+            <ul id="recentStopsList"></ul>
+        </div>
     </div>
+
     <script>
-class Tracking {
-    constructor() {
-        this.workdaySchedule = sortedWorkday.slice().sort();
-        this.weekendSchedule = sortedWeekend.slice().sort();
-        this.holidaysSchedule = sortedHoliday.slice().sort();
-        this.specialHolidays = specialHolidays;
-        this.busArrivalTimes = busArrivalTimes;
-        this.offset = 0;
-    }
+        // Масиви з розкладами
+        const sortedWorkday = [
+            "05:20", "06:10", "06:45", "07:15", "07:45", "08:15", "08:45", "09:15", "09:55", "10:35",
+            "11:15", "11:55", "12:35", "13:25", "14:15", "15:00", "15:40", "16:20", "16:50", "17:20",
+            "17:50", "18:40", "19:45", "05:40", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00",
+            "09:35", "10:15", "10:55", "11:35", "12:15", "13:00", "13:50", "14:40", "15:20", "16:00",
+            "16:35", "17:05", "17:35", "18:10", "19:10"
+        ];
 
-    loadSchedule() {
-        const today = new Date();
-        if (this.specialHolidays.includes(today.toISOString().split('T')[0])) {
-            return this.holidaysSchedule;
-        }
-        const weekday = today.getDay();
-        const isWorkday = weekday < 5;
-        return isWorkday ? this.workdaySchedule : this.weekendSchedule;
-    }
+        const sortedWeekend = [
+            "05:20", "06:10", "06:50", "07:30", "08:10", "08:50", "09:30", "10:10", "10:50", "11:30",
+            "12:10", "12:50", "13:30", "14:10", "14:50", "15:35", "16:25", "17:15", "18:10", "19:10",
+            "05:40", "06:30", "07:10", "07:50", "08:30", "09:10", "09:50", "10:30", "11:10", "11:50",
+            "12:30", "13:10", "13:50", "14:30", "15:10", "16:00", "16:50", "17:40", "18:40", "19:45"
+        ];
 
-    *generateBusSchedule(busStopQuery) {
-        let index = 0;
-        const skipStops = new Set([
-            "Ощадбанк", "Монтажний технікум", "Машинобудівний завод",
-            "Школа № 5", "Лікарня", "Верхня Немія",
-            "Залізничний вокзал", "Маслозавод", "Автовокзал", "Школа № 2"
+        const sortedHoliday = [
+            "05:20", "06:10", "07:10", "08:10", "09:10", "10:30", "12:00", "13:40", "15:20", "17:15",
+            "05:40", "06:40", "07:40", "08:40", "09:50", "11:10", "12:50", "14:30", "16:20"
+        ];
+
+        const specialHolidays = [
+            "2024-05-05",
+            "2025-01-01"
+        ];
+
+        // Дані про час прибуття автобусів
+        const busArrivalTimes = {
+            "Бронниця": { "Немії": 0 },
+            "Нижній магазин": { "Немії": 7 },
+            "П’ята колона": { "Немії": 8 },
+            "Військова частина": { "Немії": 11 },
+            "Консервний завод": { "Немії": 12, "Бронниці": 62 },
+            "119-й район": { "Немії": 14, "Бронниці": 60 },
+            "Магазин «Ельф», Прибори": { "Немії": 16, "Бронниці": 58 },
+            "Школа № 3, Полкова церква": { "Немії": 18, "Бронниці": 57 },
+            "Проспект Незалежності": { "Немії": 20, "Бронниці": 54 },
+            "Площа ім. Гоголя": { "Немії": 22, "Бронниці": 53 },
+            "Центр, Укрпошта": { "Немії": 24, "Бронниці": 50 },
+            "Ринок": { "Немії": 26, "Бронниці": 48 },
+            "Ощадбанк": { "Немії": 28, "Бронниці": 45 },
+            "Монтажний технікум": { "Немії": 29, "Бронниці": 43 },
+            "Машинобудівний завод": { "Немії": 30, "Бронниці": 42 },
+            "Школа № 5, Нова пошта": { "Немії": 32, "Бронниці": 41 },
+            "Лікарня": { "Немії": 33, "Бронниці": 38 },
+            "Верхня Немія": { "Залізничного вокзалу": 37, "Лікарні": 34 },
+            "Залізничний вокзал": { "Бронниці": 38, "Немії": 33 },
+            "Маслозавод": { "Бронниці": 42, "Немії": 31 },
+            "Автовокзал": { "Бронниці": 43, "Немії": 30 },
+            "Школа № 2": { "Бронниці": 45, "Немії": 28 },
+            "Пристань, «Вацак»": { "Бронниці": 52 },
+        };
+
+        // Дані про зупинки
+        const stopData = new Map([
+            ["Бронниця", {url: "bronnitsa", desc: "Розклад автобусів для зупинки Бронниця"}],
+            ["Нижній магазин", {url: "nizhnii-magazin", desc: "Розклад для Нижнього магазину"}],
+            // Додайте решту зупинок аналогічним чином
         ]);
-        let changeBus = true;
-        const busSchedule = this.loadSchedule();
 
-        while (index < busSchedule.length) {
-            const currentTime = busSchedule[index];
-            for (const [direction, offset] of Object.entries(this.busArrivalTimes[busStopQuery] || {})) {
-                const departureTime = busSchedule[index];
-                if (!departureTime) {
-                    console.error(`Departure time is undefined for index ${index}`);
-                    continue;
-                }
-                const busNumber = (index % 2) + 1;
-                const departureTimeDT = new Date();
-                departureTimeDT.setHours(parseInt(departureTime.slice(0, 2)), parseInt(departureTime.slice(3)), 0);
-                const arrivalTime = new Date(departureTimeDT.getTime() + offset * 60000);
-
-                if (skipStops.has(busStopQuery) && changeBus) {
-                    index++;
-                    changeBus = false;
-                }
-                yield [direction, busNumber, arrivalTime];
+        // Оригінальний клас Tracking
+        class Tracking {
+            constructor() {
+                this.workdaySchedule = sortedWorkday.slice().sort();
+                this.weekendSchedule = sortedWeekend.slice().sort();
+                this.holidaysSchedule = sortedHoliday.slice().sort();
+                this.specialHolidays = specialHolidays;
+                this.busArrivalTimes = busArrivalTimes;
+                this.offset = 0;
             }
-            index++;
-            changeBus = true;
-        }
-    }
 
-    formatTime(time) {
-        return time.toTimeString().slice(0, 5);
-    }
+            loadSchedule() {
+                const today = new Date();
+                if (this.specialHolidays.includes(today.toISOString().split('T')[0])) {
+                    return this.holidaysSchedule;
+                }
+                const weekday = today.getDay();
+                const isWorkday = weekday < 5;
+                return isWorkday ? this.workdaySchedule : this.weekendSchedule;
+            }
 
-    getBusSchedule(busStopName = "", currentTime = null) {
-        if (!currentTime) {
-            currentTime = new Date();
-        }
-        const foundStops = Object.keys(this.busArrivalTimes).filter(stop =>
-            stop.toLowerCase().includes(busStopName.toLowerCase())
-        );
+            *generateBusSchedule(busStopQuery) {
+                let index = 0;
+                const skipStops = new Set([
+                    "Ощадбанк", "Монтажний технікум", "Машинобудівний завод",
+                    "Школа № 5", "Лікарня", "Верхня Немія",
+                    "Залізничний вокзал", "Маслозавод", "Автовокзал", "Школа № 2"
+                ]);
+                let changeBus = true;
+                const busSchedule = this.loadSchedule();
 
-        if (foundStops.length === 1) {
-            const busStopQuery = foundStops[0];
-            const scheduleInfo = { bus_stop: foundStops[0] };
-            const scheduleCurrentBusstop = Array.from(this.generateBusSchedule(busStopQuery));
-            scheduleCurrentBusstop.sort((a, b) => a[2] - b[2]);
+                while (index < busSchedule.length) {
+                    const currentTime = busSchedule[index];
+                    for (const [direction, offset] of Object.entries(this.busArrivalTimes[busStopQuery] || {})) {
+                        const departureTime = busSchedule[index];
+                        if (!departureTime) {
+                            console.error(`Departure time is undefined for index ${index}`);
+                            continue;
+                        }
+                        const busNumber = (index % 2) + 1;
+                        const departureTimeDT = new Date();
+                        departureTimeDT.setHours(parseInt(departureTime.slice(0, 2)), parseInt(departureTime.slice(3)), 0);
+                        const arrivalTime = new Date(departureTimeDT.getTime() + offset * 60000);
 
-            for (let index = 0; index < scheduleCurrentBusstop.length; index++) {
-                const [direction, busNumber, arrivalTime] = scheduleCurrentBusstop[index];
-                if (currentTime <= arrivalTime) {
-                    const nextBusInfo = scheduleCurrentBusstop[(index + this.offset) % scheduleCurrentBusstop.length];
-                    const direction = nextBusInfo[0];
-                    const busNumber = nextBusInfo[1];
-                    const arrivalTime = nextBusInfo[2];
-                    let timeLeft = arrivalTime - currentTime;
+                        if (skipStops.has(busStopQuery) && changeBus) {
+                            index++;
+                            changeBus = false;
+                        }
+                        yield [direction, busNumber, arrivalTime];
+                    }
+                    index++;
+                    changeBus = true;
+                }
+            }
+
+            formatTime(time) {
+                return time.toTimeString().slice(0, 5);
+            }
+
+            getBusSchedule(busStopName = "", currentTime = null, isRecursiveCall = false) {
+                if (!currentTime) {
+                    currentTime = new Date();
+                }
+                const foundStops = Object.keys(this.busArrivalTimes).filter(stop =>
+                    stop.toLowerCase().includes(busStopName.toLowerCase())
+                );
+
+                if (foundStops.length === 1) {
+                    const busStopQuery = foundStops[0];
+                    const scheduleInfo = { bus_stop: foundStops[0] };
+                    const scheduleCurrentBusstop = Array.from(this.generateBusSchedule(busStopQuery));
+                    scheduleCurrentBusstop.sort((a, b) => a[2] - b[2]);
+
+                    // Якщо розклад порожній, повертаємо помилку
+                    if (scheduleCurrentBusstop.length === 0) {
+                        throw new Error("Немає розкладу для цієї зупинки.");
+                    }
+
+                    // Знаходимо найближчий автобус
+                    let nextBusInfo = null;
+                    for (let index = 0; index < scheduleCurrentBusstop.length; index++) {
+                        const [direction, busNumber, arrivalTime] = scheduleCurrentBusstop[index];
+                        if (currentTime <= arrivalTime) {
+                            nextBusInfo = scheduleCurrentBusstop[(index + this.offset) % scheduleCurrentBusstop.length];
+                            break;
+                        }
+                    }
+
+                    // Якщо всі автобуси вже пройшли і це не рекурсивний виклик, викликаємо функцію з часом 00:00
+                    if (!nextBusInfo && !isRecursiveCall) {
+                        const startOfDay = new Date(currentTime);
+                        startOfDay.setHours(0, 0, 0, 0); // Встановлюємо час на 00:00
+                        return this.getBusSchedule(busStopName, startOfDay, true); // Рекурсивний виклик
+                    }
+
+                    // Якщо всі автобуси вже пройшли і це рекурсивний виклик, беремо перший автобус
+                    if (!nextBusInfo && isRecursiveCall) {
+                        nextBusInfo = scheduleCurrentBusstop[0];
+                        // Встановлюємо час прибуття на наступний день
+                        const nextDayArrivalTime = new Date(nextBusInfo[2]);
+                        nextDayArrivalTime.setDate(nextDayArrivalTime.getDate() + 1);
+                        nextBusInfo[2] = nextDayArrivalTime;
+                    }
+
+                    const [direction, busNumber, arrivalTime] = nextBusInfo;
+                    let timeLeft = arrivalTime - currentTime; // Час до прибуття від поточного часу
                     if (timeLeft < 0) {
-                        // If the time left is negative, it means the bus has already passed for today
-                        // Add 24 hours to get the time for the next day
-                        timeLeft += 24 * 60 * 60 * 1000;
+                        timeLeft += 24 * 60 * 60 * 1000; // Додаємо 24 години, якщо автобус вже пройшов
                     }
                     const hoursLeft = Math.floor(timeLeft / 3600000);
                     const minutesLeft = Math.floor((timeLeft % 3600000) / 60000);
@@ -206,165 +294,205 @@ class Tracking {
                     scheduleInfo.arrival_time = this.formatTime(arrivalTime);
                     scheduleInfo.time_left = hoursLeft ? `${hoursLeft} годин ${minutesLeft} хвилин` : `${minutesLeft} хвилин`;
                     scheduleInfo.full_schedule = scheduleCurrentBusstop.map(([d, n, a]) => [d, n, this.formatTime(a)]);
-                    break;
+
+                    return scheduleInfo;
+                } else if (foundStops.length > 1) {
+                    return { stops: foundStops };
+                } else {
+                    throw new Error("Зупинку не знайдено");
                 }
             }
-            return scheduleInfo;
-        } else if (foundStops.length > 1) {
-            return { stops: foundStops };
-        } else {
-            throw new Error("Зупинку не знайдено");
         }
-    }
-}
 
-const sortedWorkday = [
-    "05:20", "06:10", "06:45", "07:15", "07:45", "08:15", "08:45", "09:15", "09:55", "10:35", "11:15", "11:55", "12:35", "13:25", "14:15", "15:00", "15:40", "16:20", "16:50", "17:20", "17:50", "18:40", "19:45",
-    "05:40", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:35", "10:15", "10:55", "11:35", "12:15", "13:00", "13:50", "14:40", "15:20", "16:00", "16:35", "17:05", "17:35", "18:10", "19:10"
-];
+        // Ініціалізація менеджера розкладу
+        const tracking = new Tracking();
 
-const sortedWeekend = [
-    "05:20", "06:10", "06:50", "07:30", "08:10", "08:50", "09:30", "10:10", "10:50", "11:30", "12:10", "12:50", "13:30", "14:10", "14:50", "15:35", "16:25", "17:15", "18:10", "19:10",
-    "05:40", "06:30", "07:10", "07:50", "08:30", "09:10", "09:50", "10:30", "11:10", "11:50", "12:30", "13:10", "13:50", "14:30", "15:10", "16:00", "16:50", "17:40", "18:40", "19:45"
-];
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = {
+                busStop: document.getElementById('busStopName'),
+                result: document.getElementById('result'),
+                recentStopsList: document.getElementById('recentStopsList'),
+                buttons: {
+                    prev: document.getElementById('prevButton'),
+                    next: document.getElementById('nextButton'),
+                    find: document.getElementById('findButton'),
+                    schedule: document.getElementById('scheduleButton')
+                }
+            };
 
-const sortedHoliday = [
-    "05:20", "06:10", "07:10", "08:10", "09:10", "10:30", "12:00", "13:40", "15:20", "17:15",
-    "05:40", "06:40", "07:40", "08:40", "09:50", "11:10", "12:50", "14:30", "16:20"
-];
+            // Ініціалізація зупинок
+            function initBusStops() {
+                stopData.forEach((value, key) => {
+                    const option = new Option(key, key);
+                    elements.busStop.add(option);
+                });
 
-const specialHolidays = [
-    "2024-05-05",
-    "2025-01-01"
-];
+                // Отримуємо параметр з URL і встановлюємо значення в select
+                const urlParams = new URLSearchParams(window.location.search);
+                const stopParam = urlParams.get('stop');
+                if (stopParam) {
+                    const stopName = Array.from(stopData.keys()).find(key => stopData.get(key).url === stopParam);
+                    if (stopName) {
+                        elements.busStop.value = stopName;
+                        updateMetaTags(stopName);
+                        updateScheduleDisplay();
+                    }
+                }
 
-const busArrivalTimes = {
-    "Бронниця": { "Немії": 0 },
-    "Нижній магазин": { "Немії": 7 },
-    "П’ята колона": { "Немії": 8 },
-    "Військова частина": { "Немії": 11 },
-    "Консервний завод": { "Немії": 12, "Бронниці": 62 },
-    "119-й район": { "Немії": 14, "Бронниці": 60 },
-    "Магазин «Ельф», Прибори": { "Немії": 16, "Бронниці": 58 },
-    "Школа № 3, Полкова церква": { "Немії": 18, "Бронниці": 57 },
-    "Проспект Незалежності": { "Немії": 20, "Бронниці": 54 },
-    "Площа ім. Гоголя": { "Немії": 22, "Бронниці": 53 },
-    "Центр, Укрпошта": { "Немії": 24, "Бронниці": 50 },
-    "Ринок": { "Немії": 26, "Бронниці": 48 },
-    "Ощадбанк": { "Немії": 28, "Бронниці": 45 },
-    "Монтажний технікум": { "Немії": 29, "Бронниці": 43 },
-    "Машинобудівний завод": { "Немії": 30, "Бронниці": 42 },
-    "Школа № 5, Нова пошта": { "Немії": 32, "Бронниці": 41 },
-    "Лікарня": { "Немії": 33, "Бронниці": 38 },
-    "Верхня Немія": { "Залізничного вокзалу": 37, "Лікарні": 34 },
-    "Залізничний вокзал": { "Бронниці": 38, "Немії": 33 },
-    "Маслозавод": { "Бронниці": 42, "Немії": 31 },
-    "Автовокзал": { "Бронниці": 43, "Немії": 30 },
-    "Школа № 2": { "Бронниці": 45, "Немії": 28 },
-    "Пристань, «Вацак»": { "Бронниці": 52 },
-};
-
-const tracking = new Tracking();
-
-document.addEventListener('DOMContentLoaded', () => {
-    const busStopName = document.getElementById('busStopName');
-    const result = document.getElementById('result');
-    const prevButton = document.getElementById('prevButton');
-    const findButton = document.getElementById('findButton');
-    const nextButton = document.getElementById('nextButton');
-    const scheduleButton = document.getElementById('scheduleButton');
-    const content = document.getElementById('content');
-    let offset = 0;
-
-    function loadBusStops() {
-        const stops = Object.keys(busArrivalTimes);
-        stops.forEach(stop => {
-            const option = document.createElement('option');
-            option.value = stop;
-            option.textContent = stop;
-            busStopName.appendChild(option);
-        });
-    }
-
-    function fetchSchedule() {
-        const busStop = busStopName.value.trim();
-        if (!busStop) {
-            result.innerHTML = "Для відображення інформації, будь ласка оберіть зупинку із списку";
-            return;
-        }
-        try {
-            const scheduleInfo = tracking.getBusSchedule(busStop, new Date());
-            if (scheduleInfo.full_schedule) {
-                const info = scheduleInfo;
-                result.innerHTML = `
-                    <div class="result-item"><strong>Назва зупинки:</strong> ${info.bus_stop}</div>
-                    <div class="result-item"><strong>В напрямку:</strong> ${info.direction}</div>
-                    <div class="result-item"><strong>Номер автобуса: №</strong> ${info.bus_number}</div>
-                    <div class="result-item"><strong>Час прибуття:</strong> ${info.arrival_time}</div>
-                    <div class="result-item"><strong>Через:</strong> ${info.time_left}</div>
-                `;
-            } else {
-                result.textContent = "Не знайдено інформації про наступний автобус.";
+                // Оновлення списку останніх зупинок
+                updateRecentStopsList();
             }
-        } catch (error) {
-            result.textContent = `Помилка: ${error}`;
-        }
-    }
 
-    function fetchFullSchedule() {
-        result.textContent = '';
-        const busStop = busStopName.value.trim();
-        if (!busStop) {
-            result.innerHTML = "Для відображення інформації, будь ласка оберіть зупинку із списку";
-            return;
-        }
-        try {
-            const scheduleInfo = tracking.getBusSchedule(busStop, new Date());
-            if (scheduleInfo.full_schedule) {
-                const info = scheduleInfo;
-                const fullSchedule = info.full_schedule.map(entry => `
-                    <tr>
-                        <td>${entry[0]}</td>
-                        <td>${entry[1]}</td>
-                        <td>${entry[2]}</td>
-                    </tr>
-                `).join('');
-                result.innerHTML = `
-                    <h3>Повний графік руху по зупинці: ${info.bus_stop}</h3>
-                    <table>
-                        <thead>
+            // Оновлення метатегів
+            function updateMetaTags(stopName) {
+                const stopInfo = stopData.get(stopName) || {};
+                const baseTitle = "Могилів-Подільський графік руху автобусів";
+                const baseDesc = "Розклад руху автобусів у Могилів-Подільському";
+
+                document.title = stopName ? `${stopName} | ${baseTitle}` : baseTitle;
+                document.getElementById('metaDescription').content = stopInfo.desc || baseDesc;
+                document.getElementById('ogTitle').content = document.title;
+                document.getElementById('ogDescription').content = document.getElementById('metaDescription').content;
+                document.getElementById('ogUrl').content = window.location.href;
+            }
+
+            // Обробник зміни зупинки
+            function handleStopChange() {
+                const selectedStop = elements.busStop.value;
+                console.log("Обрана зупинка:", selectedStop); // Додано для відладки
+                const stopParam = selectedStop ? stopData.get(selectedStop)?.url : '';
+
+                const url = new URL(window.location);
+                if (stopParam) {
+                    url.searchParams.set('stop', stopParam);
+                } else {
+                    url.searchParams.delete('stop');
+                }
+                window.history.replaceState(null, '', url);
+
+                updateMetaTags(selectedStop);
+                updateScheduleDisplay();
+
+                // Додаємо зупинку до списку останніх через 5 секунд
+                setTimeout(() => {
+                    addToRecentStops(selectedStop);
+                }, 5000);
+            }
+
+            // Оновлення відображення розкладу
+            function updateScheduleDisplay() {
+                const selectedStop = elements.busStop.value;
+                console.log("Оновлення розкладу для зупинки:", selectedStop); // Додано для відладки
+                if (!selectedStop) {
+                    elements.result.textContent = "Будь ласка, оберіть зупинку зі списку.";
+                    return;
+                }
+
+                try {
+                    const scheduleInfo = tracking.getBusSchedule(selectedStop, new Date());
+                    console.log("Інформація про розклад:", scheduleInfo); // Додано для відладки
+                    if (scheduleInfo.full_schedule) {
+                        const info = scheduleInfo;
+                        elements.result.innerHTML = `
+                            <div class="result-item"><strong>Назва зупинки:</strong> ${info.bus_stop}</div>
+                            <div class="result-item"><strong>В напрямку:</strong> ${info.direction}</div>
+                            <div class="result-item"><strong>Номер автобуса: №</strong> ${info.bus_number}</div>
+                            <div class="result-item"><strong>Час прибуття:</strong> ${info.arrival_time}</div>
+                            <div class="result-item"><strong>Через:</strong> ${info.time_left}</div>
+                        `;
+                    } else {
+                        elements.result.textContent = "Не знайдено інформації про наступний автобус.";
+                    }
+                } catch (error) {
+                    console.error("Помилка при отриманні розкладу:", error); // Додано для відладки
+                    elements.result.textContent = `Помилка: ${error.message}`;
+                }
+            }
+
+            // Показ повного розкладу
+            function showFullSchedule() {
+                const selectedStop = elements.busStop.value;
+                console.log("Показ повного розкладу для зупинки:", selectedStop); // Додано для відладки
+                if (!selectedStop) {
+                    elements.result.textContent = "Будь ласка, оберіть зупинку зі списку.";
+                    return;
+                }
+
+                try {
+                    const scheduleInfo = tracking.getBusSchedule(selectedStop, new Date());
+                    console.log("Повний розклад:", scheduleInfo); // Додано для відладки
+                    if (scheduleInfo.full_schedule) {
+                        const info = scheduleInfo;
+                        const fullSchedule = info.full_schedule.map(entry => `
                             <tr>
-                                <th>В напрямку</th>
-                                <th>Номер автобуса</th>
-                                <th>Час прибуття</th>
+                                <td>${entry[0]}</td>
+                                <td>${entry[1]}</td>
+                                <td>${entry[2]}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            ${fullSchedule}
-                        </tbody>
-                    </table>
-                `;
-            } else {
-                result.textContent = "Не знайдено інформації про наступний автобус.";
+                        `).join('');
+                        elements.result.innerHTML = `
+                            <h3>Повний графік руху по зупинці: ${info.bus_stop}</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>В напрямку</th>
+                                        <th>Номер автобуса</th>
+                                        <th>Час прибуття</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${fullSchedule}
+                                </tbody>
+                            </table>
+                        `;
+                    } else {
+                        elements.result.textContent = "Не знайдено інформації про розклад.";
+                    }
+                } catch (error) {
+                    console.error("Помилка при отриманні повного розкладу:", error); // Додано для відладки
+                    elements.result.textContent = `Помилка: ${error.message}`;
+                }
             }
-        } catch (error) {
-            result.textContent = `Помилка: ${error}`;
-        }
-    }
 
-    busStopName.addEventListener('change', fetchSchedule);
-    findButton.addEventListener('click', fetchSchedule);
-    prevButton.addEventListener('click', () => {
-        tracking.offset -= 1;
-        fetchSchedule();
-    });
-    nextButton.addEventListener('click', () => {
-        tracking.offset += 1;
-        fetchSchedule();
-    });
-    scheduleButton.addEventListener('click', fetchFullSchedule);
-    loadBusStops();
-});
+            // Додавання зупинки до списку останніх
+            function addToRecentStops(stopName) {
+                if (!stopName) return;
+
+                let recentStops = JSON.parse(localStorage.getItem('recentStops')) || [];
+                recentStops = recentStops.filter(stop => stop !== stopName); // Видаляємо дублікати
+                recentStops.unshift(stopName); // Додаємо зупинку на початок списку
+                if (recentStops.length > 5) {
+                    recentStops.pop(); // Залишаємо тільки 5 останніх зупинок
+                }
+                localStorage.setItem('recentStops', JSON.stringify(recentStops));
+                updateRecentStopsList();
+            }
+
+            // Оновлення списку останніх зупинок
+            function updateRecentStopsList() {
+                const recentStops = JSON.parse(localStorage.getItem('recentStops')) || [];
+                elements.recentStopsList.innerHTML = recentStops.map(stop => `
+                    <li><a href="?stop=${stopData.get(stop)?.url}">${stop}</a></li>
+                `).join('');
+            }
+
+            // Ініціалізація подій
+            elements.busStop.addEventListener('change', handleStopChange);
+            elements.buttons.prev.addEventListener('click', () => {
+                tracking.offset -= 1;
+                updateScheduleDisplay();
+            });
+            elements.buttons.next.addEventListener('click', () => {
+                tracking.offset += 1;
+                updateScheduleDisplay();
+            });
+            elements.buttons.find.addEventListener('click', updateScheduleDisplay);
+            elements.buttons.schedule.addEventListener('click', showFullSchedule);
+
+            // Завантаження початкових даних
+            initBusStops();
+            updateScheduleDisplay();
+        });
     </script>
 </body>
 </html>
