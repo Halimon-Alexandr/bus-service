@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="JI6ND_9xtAWJ5EG4Fag-STfROlu4zrC5y9NKcuuJbW8" />
     <title>Могилів-Подільський графік руху автобусів</title>
-    <meta name="description" content="Розклад руху автобусів у Могилів-Подільському. Дізнатися  час відправлення автобусів по зупинкам міста.">
+    <meta name="description" id="metaDescription" content="Розклад руху автобусів у Могилів-Подільському. Дізнатися час відправлення автобусів по зупинкам міста.">
+    <meta property="og:title" id="ogTitle" content="Могилів-Подільський графік руху автобусів">
+    <meta property="og:description" id="ogDescription" content="Актуальний розклад руху автобусів по зупинкам Могилева-Подільського">
+    <meta property="og:type" content="website">
+    <meta property="og:url" id="ogUrl" content="https://yourdomain.com/">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VHY6R74G"></script>
     <script>
@@ -384,16 +388,31 @@
                 const baseDesc = "Розклад руху автобусів у Могилів-Подільському";
 
                 document.title = stopName ? `${stopName} | ${baseTitle}` : baseTitle;
-                document.getElementById('metaDescription').content = stopInfo.desc || baseDesc;
-                document.getElementById('ogTitle').content = document.title;
-                document.getElementById('ogDescription').content = document.getElementById('metaDescription').content;
-                document.getElementById('ogUrl').content = window.location.href;
+
+                const metaDescription = document.getElementById('metaDescription');
+                if (metaDescription) {
+                    metaDescription.content = stopInfo.desc || baseDesc;
+                }
+
+                const ogTitle = document.getElementById('ogTitle');
+                if (ogTitle) {
+                    ogTitle.content = document.title;
+                }
+
+                const ogDescription = document.getElementById('ogDescription');
+                if (ogDescription) {
+                    ogDescription.content = metaDescription ? metaDescription.content : baseDesc;
+                }
+
+                const ogUrl = document.getElementById('ogUrl');
+                if (ogUrl) {
+                    ogUrl.content = window.location.href;
+                }
             }
 
             // Обробник зміни зупинки
             function handleStopChange() {
                 const selectedStop = elements.busStop.value;
-                console.log("Обрана зупинка:", selectedStop); // Додано для відладки
                 const stopParam = selectedStop ? stopData.get(selectedStop)?.url : '';
 
                 const url = new URL(window.location);
@@ -416,7 +435,6 @@
             // Оновлення відображення розкладу
             function updateScheduleDisplay() {
                 const selectedStop = elements.busStop.value;
-                console.log("Оновлення розкладу для зупинки:", selectedStop); // Додано для відладки
                 if (!selectedStop) {
                     elements.result.textContent = "Будь ласка, оберіть зупинку зі списку.";
                     return;
@@ -424,7 +442,6 @@
 
                 try {
                     const scheduleInfo = tracking.getBusSchedule(selectedStop, new Date());
-                    console.log("Інформація про розклад:", scheduleInfo); // Додано для відладки
                     if (scheduleInfo.full_schedule) {
                         const info = scheduleInfo;
                         elements.result.innerHTML = `
@@ -438,7 +455,6 @@
                         elements.result.textContent = "Не знайдено інформації про наступний автобус.";
                     }
                 } catch (error) {
-                    console.error("Помилка при отриманні розкладу:", error); // Додано для відладки
                     elements.result.textContent = `Помилка: ${error.message}`;
                 }
             }
@@ -446,7 +462,6 @@
             // Показ повного розкладу
             function showFullSchedule() {
                 const selectedStop = elements.busStop.value;
-                console.log("Показ повного розкладу для зупинки:", selectedStop); // Додано для відладки
                 if (!selectedStop) {
                     elements.result.textContent = "Будь ласка, оберіть зупинку зі списку.";
                     return;
@@ -454,7 +469,6 @@
 
                 try {
                     const scheduleInfo = tracking.getBusSchedule(selectedStop, new Date());
-                    console.log("Повний розклад:", scheduleInfo); // Додано для відладки
                     if (scheduleInfo.full_schedule) {
                         const info = scheduleInfo;
                         const fullSchedule = info.full_schedule.map(entry => `
@@ -483,7 +497,6 @@
                         elements.result.textContent = "Не знайдено інформації про розклад.";
                     }
                 } catch (error) {
-                    console.error("Помилка при отриманні повного розкладу:", error); // Додано для відладки
                     elements.result.textContent = `Помилка: ${error.message}`;
                 }
             }
