@@ -4,86 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="JI6ND_9xtAWJ5EG4Fag-STfROlu4zrC5y9NKcuuJbW8" />
-
-    <!-- Dynamic Meta Tags -->
-    <title id="dynamicTitle">Могилів-Подільський графік руху автобусів</title>
-    <meta name="description" id="metaDescription" content="Розклад руху автобусів у Могилів-Подільському. Дізнатися час відправлення автобусів по зупинкам міста.">
-
-    <!-- Open Graph Tags -->
-    <meta property="og:title" id="ogTitle" content="Могилів-Подільський графік руху автобусів">
-    <meta property="og:description" id="ogDescription" content="Актуальний розклад руху автобусів по зупинкам Могилева-Подільського">
-    <meta property="og:type" content="website">
-    <meta property="og:url" id="ogUrl" content="https://yourdomain.com/">
-
+    <title>Могилів-Подільський графік руху автобусів</title>
+    <meta name="description" content="Розклад руху автобусів у Могилів-Подільському. Дізнатися  час відправлення автобусів по зупинкам міста.">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VHY6R74G"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-70VHY6R74G');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-70VHY6R74G');
     </script>
-
     <style>
-        :root {
-            --primary-color: #0057B7;
-            --secondary-color: #FFD700;
-            --text-color: #333;
-            --bg-gradient: linear-gradient(to bottom, var(--secondary-color), var(--primary-color));
-        }
-
         body {
             font-family: Arial, sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-color);
+            background: linear-gradient(to bottom, #FFD700, #0057B7);
+            color: #333;
             margin: 0;
             padding: 0;
-            min-height: 100vh;
         }
-
         header {
-            background-color: var(--primary-color);
-            color: var(--secondary-color);
+            background-color: #0057B7;
+            color: #FFD700;
             padding: 20px;
             text-align: center;
         }
-
+        nav {
+            text-align: center;
+            background-color: #FFD700;
+            padding: 10px 0;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+        nav ul li a {
+            color: #0057B7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
         .container {
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        .recent-stops {
+        h1, h2 {
+            text-align: center;
+            color: #0057B7;
+        }
+        label {
+            display: block;
             margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        select, button {
+            display: block;
+            width: 100%;
             padding: 10px;
-            background: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 2px solid #0057B7;
             border-radius: 5px;
         }
-
-        .recent-stops h3 {
+        select:focus, button:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+        .result-item {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+        h3 {
+            color: #0057B7;
             margin-bottom: 10px;
         }
-
-        .recent-stops ul {
-            list-style-type: none;
-            padding: 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
         }
-
-        .recent-stops ul li {
-            margin: 5px 0;
+        th, td {
+            border: 1px solid #0057B7;
+            padding: 10px;
+            text-align: left;
         }
-
-        .recent-stops ul li a {
-            text-decoration: none;
-            color: var(--primary-color);
+        th {
+            background-color: #FFD700;
         }
-
-        .recent-stops ul li a:hover {
-            text-decoration: underline;
+        @media only screen and (max-width: 600px) {
+            nav ul li {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -91,6 +117,16 @@
     <header>
         <h1>Могилів-Подільський графік руху автобусів</h1>
     </header>
+    <nav>
+        <ul>
+            <li><a href="#" data-page="home">Головна</a></li>
+            <li><a href="#" data-page="about">Про нас</a></li>
+            <li><a href="#" data-page="telegram">Телеграм бот</a></li>
+            <li><a href="#" data-page="viber">Вайбер бот</a></li>
+            <li><a href="#" data-page="api">API</a></li>
+            <li><a href="#" data-page="contacts">Контакти</a></li>
+        </ul>
+    </nav>
     <div class="container" id="content">
         <p>Сервіс пошуку розкладу руху автобусів в нашому місті.</p>
         <p>Тут ви можете переглянути як час прибуття по кожній із зупинок, так і ознайомитись з повним розкладом по ним.</p>
@@ -103,12 +139,10 @@
         <h2>Результат пошуку</h2>
         <div id="result">Для відображення інформації, будь ласка оберіть зупинку із списку вище.</div>
 
-        <div class="button-group">
-            <button id="prevButton">Попередній автобус</button>
-            <button id="findButton">Оновити</button>
-            <button id="nextButton">Наступний</button>
-            <button id="scheduleButton">Повний розклад</button>
-        </div>
+        <button id="prevButton">Попередній автобус</button>
+        <button id="findButton">Оновити відносно поточного часу</button>
+        <button id="nextButton">Наступний автобус</button>
+        <button id="scheduleButton">Повний розклад</button>
 
         <div class="recent-stops">
             <h3>Останні переглянуті зупинки</h3>
