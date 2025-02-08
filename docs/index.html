@@ -32,28 +32,6 @@
             padding: 20px;
             text-align: center;
         }
-        nav {
-            text-align: center;
-            background-color: #FFD700;
-            padding: 10px 0;
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 15px;
-        }
-        nav ul li a {
-            color: #0057B7;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        nav ul li a:hover {
-            text-decoration: underline;
-        }
         .container {
             max-width: 800px;
             margin: 20px auto;
@@ -121,16 +99,6 @@
     <header>
         <h1>Могилів-Подільський графік руху автобусів</h1>
     </header>
-    <nav>
-        <ul>
-            <li><a href="#" data-page="home">Головна</a></li>
-            <li><a href="#" data-page="about">Про нас</a></li>
-            <li><a href="#" data-page="telegram">Телеграм бот</a></li>
-            <li><a href="#" data-page="viber">Вайбер бот</a></li>
-            <li><a href="#" data-page="api">API</a></li>
-            <li><a href="#" data-page="contacts">Контакти</a></li>
-        </ul>
-    </nav>
     <div class="container" id="content">
         <p>Сервіс пошуку розкладу руху автобусів в нашому місті.</p>
         <p>Тут ви можете переглянути як час прибуття по кожній із зупинок, так і ознайомитись з повним розкладом по ним.</p>
@@ -533,8 +501,10 @@
                 if (!stopName) return;
 
                 let recentStops = JSON.parse(localStorage.getItem('recentStops')) || [];
-                recentStops = recentStops.filter(stop => stop !== stopName); // Видаляємо дублікати
-                recentStops.unshift(stopName); // Додаємо зупинку на початок списку
+                // Видаляємо зупинку, якщо вона вже є в списку
+                recentStops = recentStops.filter(stop => stop !== stopName);
+                // Додаємо зупинку на початок списку
+                recentStops.unshift(stopName);
                 if (recentStops.length > 5) {
                     recentStops.pop(); // Залишаємо тільки 5 останніх зупинок
                 }
@@ -546,8 +516,19 @@
             function updateRecentStopsList() {
                 const recentStops = JSON.parse(localStorage.getItem('recentStops')) || [];
                 elements.recentStopsList.innerHTML = recentStops.map(stop => `
-                    <li><a href="?stop=${stopData.get(stop)?.url}">${stop}</a></li>
+                    <li><a href="#" data-stop="${stop}">${stop}</a></li>
                 `).join('');
+
+                // Додаємо обробник подій для елементів списку
+                document.querySelectorAll('#recentStopsList a').forEach(link => {
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        const stopName = event.target.getAttribute('data-stop');
+                        elements.busStop.value = stopName;
+                        handleStopChange();
+                        addToRecentStops(stopName); // Переміщуємо зупинку на початок списку
+                    });
+                });
             }
 
             // Ініціалізація подій
