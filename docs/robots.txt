@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://mog-pod.pp.ua/sitemap.xml

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>http://mog-pod.pp.ua/</loc>
+        <loc>https://mog-pod.pp.ua/</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
@@ -9,139 +9,139 @@
     
     <!-- Сторінки зупинок -->
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=bronnitsa</loc>
+        <loc>https://mog-pod.pp.ua/?stop=bronnitsa</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=nizhnii-magazin</loc>
+        <loc>https://mog-pod.pp.ua/?stop=nizhnii-magazin</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=pyata-kolona</loc>
+        <loc>https://mog-pod.pp.ua/?stop=pyata-kolona</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=viiskova-chastyna</loc>
+        <loc>https://mog-pod.pp.ua/?stop=viiskova-chastyna</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=konservnyi-zavod</loc>
+        <loc>https://mog-pod.pp.ua/?stop=konservnyi-zavod</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=119-raion</loc>
+        <loc>https://mog-pod.pp.ua/?stop=119-raion</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=magazin-elf-prybory</loc>
+        <loc>https://mog-pod.pp.ua/?stop=magazin-elf-prybory</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=shkola-3-polkova-tserkva</loc>
+        <loc>https://mog-pod.pp.ua/?stop=shkola-3-polkova-tserkva</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=prospekt-nezalezhnosti</loc>
+        <loc>https://mog-pod.pp.ua/?stop=prospekt-nezalezhnosti</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=ploshcha-im-hoholia</loc>
+        <loc>https://mog-pod.pp.ua/?stop=ploshcha-im-hoholia</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=tsentr-ukrposhta</loc>
+        <loc>https://mog-pod.pp.ua/?stop=tsentr-ukrposhta</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=rynok</loc>
+        <loc>https://mog-pod.pp.ua/?stop=rynok</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=oschadbank</loc>
+        <loc>https://mog-pod.pp.ua/?stop=oschadbank</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=montazhnyi-tekhnikum</loc>
+        <loc>https://mog-pod.pp.ua/?stop=montazhnyi-tekhnikum</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=mashynobudivnyi-zavod</loc>
+        <loc>https://mog-pod.pp.ua/?stop=mashynobudivnyi-zavod</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=shkola-5-nova-poshta</loc>
+        <loc>https://mog-pod.pp.ua/?stop=shkola-5-nova-poshta</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=likarnya</loc>
+        <loc>https://mog-pod.pp.ua/?stop=likarnya</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=verkhnya-nemia</loc>
+        <loc>https://mog-pod.pp.ua/?stop=verkhnya-nemia</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=zaliznychnyi-vokzal</loc>
+        <loc>https://mog-pod.pp.ua/?stop=zaliznychnyi-vokzal</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=maslozavod</loc>
+        <loc>https://mog-pod.pp.ua/?stop=maslozavod</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=avtovokzal</loc>
+        <loc>https://mog-pod.pp.ua/?stop=avtovokzal</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=shkola-2</loc>
+        <loc>https://mog-pod.pp.ua/?stop=shkola-2</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>http://mog-pod.pp.ua/?stop=prystan-vatsak</loc>
+        <loc>https://mog-pod.pp.ua/?stop=prystan-vatsak</loc>
         <lastmod>2024-05-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
