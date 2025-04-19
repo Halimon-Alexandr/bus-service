@@ -1,7 +1,7 @@
 from datetime import datetime
 special_holidays = [
     datetime(2024, 5, 5).date(),
-    datetime(2025, 1, 1).date()
+    datetime(2025, 4, 20).date()
 ]
 
 workday = [
